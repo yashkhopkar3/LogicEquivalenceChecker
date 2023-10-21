@@ -2,7 +2,6 @@ package com.example.logicequivalencechecker;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.text.Html;
 import android.view.View;
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                 stack.push(c);
             } else if (c == ')') {
                 if (openParentheses == 0 || prevCharIsOperator) {
-                    return false; // Mismatched parentheses or missing operator
+                    return false; // Mismatched parentheses or missing operand
                 }
                 openParentheses--;
                 stack.pop();
@@ -105,14 +104,13 @@ public class MainActivity extends AppCompatActivity {
                     return false; // Missing operator between operands
                 }
                 prevCharIsOperator = false;
-            } else {
-                // It's an operator
+            } else { // It's an operator
                 prevCharIsOperator = true;
             }
         }
 
         if (openParentheses != 0 || prevCharIsOperator) {
-            return false; // Mismatched parentheses or missing operator
+            return false; // Mismatched parentheses or missing operand
         }
 
         return true; // Valid expression
@@ -141,15 +139,24 @@ public class MainActivity extends AppCompatActivity {
                     applyOperator(operators, operands);
                 }
                 operators.pop(); // remove '(' from stack
-            } else { // other operators
-                String op = Character.toString(c);
-                if (i + 1 < expr.length()) {
-                    char nextChar = expr.charAt(i + 1);
-                    if ((c == '-' && nextChar == '>') || (c == '<' && nextChar == '-')) {
-                        op += nextChar;
-                        i++; // skip next character
-                    }
+            } else if (c == '-' && i + 1 < expr.length() && expr.charAt(i + 1) == '>') {
+                // Handle '->' operator (implication)
+                i++; // Skip the '>' part
+                String op = "->";
+                while (!operators.isEmpty() && precedence(op) <= precedence(operators.peek())) {
+                    applyOperator(operators, operands);
                 }
+                operators.push(op);
+            } else if (c == '<' && i + 2 < expr.length() && expr.charAt(i + 1) == '-' && expr.charAt(i + 2) == '>') {
+                // Handle '<->' operator (equivalence)
+                i += 2; // Skip the '->' part
+                String op = "<->";
+                while (!operators.isEmpty() && precedence(op) <= precedence(operators.peek())) {
+                    applyOperator(operators, operands);
+                }
+                operators.push(op);
+            } else { // Other operators
+                String op = Character.toString(c);
                 while (!operators.isEmpty() && precedence(op) <= precedence(operators.peek())) {
                     applyOperator(operators, operands);
                 }
@@ -181,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void applyOperator(Stack<String> operators, Stack<Boolean> operands) {
         String operator = operators.pop();
 
@@ -202,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     operands.push(!operand1 || operand2); // implication
                     break;
                 case "<->":
-                    operands.push((!operand1 || operand2) && (!operand2 || operand1)); // double implication
+                    operands.push(operand1 == operand2); // equivalence
                     break;
                 default:
                     break;
