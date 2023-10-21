@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Locale;
 import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,14 +34,16 @@ public class MainActivity extends AppCompatActivity {
         resultWebView = findViewById(R.id.resultWebView);
         resultWebView.setBackgroundColor(Color.parseColor("#FAC5B0"));
         TextView textView = findViewById(R.id.inputDescriptionTextView); // Replace with your TextView's ID
-        String textWithAmpersand = "Allowed Input: p, q, &amp;, V, ~, ->, &harr;";
+        String textWithAmpersand = "Allowed Input: p, q, t, f, (,), &, V, ~, ->, ↔";
         textView.setText(Html.fromHtml(textWithAmpersand));
 
         evaluateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String expr1 = expr1EditText.getText().toString().trim();
-                String expr2 = expr2EditText.getText().toString().trim();
+                String expr1 = expr1EditText.getText().toString();
+                String expr2 = expr2EditText.getText().toString();
+                expr1 = expr1.replaceAll("\\s", ""); // Remove all spaces
+                expr2 = expr2.replaceAll("\\s", ""); // Remove all spaces
                 String result = evaluateExpressions(expr1, expr2);
                 resultWebView.setBackgroundColor(Color.parseColor("#FAC5B0"));
                 resultWebView.loadData(result, "text/html", "UTF-8");
@@ -72,18 +76,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isValidExpression(String expression) {
-        String validCharacters = "pq&V~-><->() ";
+        String validCharacters = "pqtfPQTF&V~-><->()";
         int openParentheses = 0;
         Stack<Character> stack = new Stack<>();
         boolean prevCharIsOperator = true; // Initial state assumes an operator.
 
         for (int i = 0; i < expression.length(); i++) {
             char c = expression.charAt(i);
-
-            if (c == ' ') {
-                // Ignore spaces
-                continue;
-            }
 
             if (validCharacters.indexOf(c) == -1) {
                 return false; // Invalid character
@@ -99,11 +98,9 @@ public class MainActivity extends AppCompatActivity {
                 if (openParentheses == 0 || prevCharIsOperator) {
                     return false; // Mismatched parentheses or missing operator
                 }
-                if (stack.isEmpty() || stack.pop() != '(') {
-                    return false; // Mismatched parentheses
-                }
                 openParentheses--;
-            } else if (c == 'p' || c == 'q') {
+                stack.pop();
+            } else if (c == 'p' || c == 'q' || c == 't' || c == 'f' || c == 'P' || c == 'Q' || c == 'T' || c == 'F') {
                 if (!prevCharIsOperator) {
                     return false; // Missing operator between operands
                 }
@@ -127,10 +124,14 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < expr.length(); i++) {
             char c = expr.charAt(i);
-            if (c == 'p') {
+            if (c == 'p' || c == 'P') {
                 operands.push(p);
-            } else if (c == 'q') {
+            } else if (c == 'q' || c == 'Q') {
                 operands.push(q);
+            } else if (c == 't' || c == 'T') {
+                operands.push(true);
+            } else if (c == 'f' || c == 'F') {
+                operands.push(false);
             } else if (c == '~') {
                 operators.push(Character.toString(c));
             } else if (c == '(') {
