@@ -63,13 +63,13 @@ public class MainActivity extends AppCompatActivity {
         // Identify all unique operands used in the expressions
         String uniqueOperands = "";
         for (int i = 0; i < expr1.length(); i++) {
-            char c = expr1.charAt(i);
+            char c = expr1.toLowerCase().charAt(i);
             if ("pqtfPQTF".contains(String.valueOf(c)) && uniqueOperands.indexOf(c) == -1) {
                 uniqueOperands += c;
             }
         }
         for (int i = 0; i < expr2.length(); i++) {
-            char c = expr2.charAt(i);
+            char c = expr2.toLowerCase().charAt(i);
             if ("pqtfPQTF".contains(String.valueOf(c)) && uniqueOperands.indexOf(c) == -1) {
                 uniqueOperands += c;
             }
