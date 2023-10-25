@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         StringBuilder truthTable = new StringBuilder("<html><body><style>table {border-collapse: collapse;} th, td {padding: 10px;}</style><table><tr>");
         // Generate column headers for all unique operands
         for (int i = 0; i < uniqueOperands.length(); i++) {
-            truthTable.append("<th>").append(uniqueOperands.charAt(i)).append("</th>");
+            truthTable.append("<th>").append(uniqueOperands.toUpperCase().charAt(i)).append("</th>");
         }
         truthTable.append("<th>").append(expr1.toUpperCase()).append("</th><th>").append(expr2.toUpperCase()).append("</th></tr>");
 
