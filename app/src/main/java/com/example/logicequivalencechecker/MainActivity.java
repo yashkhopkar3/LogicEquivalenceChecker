@@ -56,15 +56,44 @@ public class MainActivity extends AppCompatActivity {
             return "<html><body><p>Invalid expression(s)</p></body></html>";
         }
 
+        // Declare and initialize the truth values for operands P and Q
         boolean[] p = {true, true, false, false};
         boolean[] q = {true, false, true, false};
-        StringBuilder truthTable = new StringBuilder("<html><body><table><tr><th>P</th><th>Q</th><th>Expr1</th><th>Expr2</th></tr>");
 
+        // Identify all unique operands used in the expressions
+        String uniqueOperands = "";
+        for (int i = 0; i < expr1.length(); i++) {
+            char c = expr1.charAt(i);
+            if ("pqtfPQTF".contains(String.valueOf(c)) && uniqueOperands.indexOf(c) == -1) {
+                uniqueOperands += c;
+            }
+        }
+        for (int i = 0; i < expr2.length(); i++) {
+            char c = expr2.charAt(i);
+            if ("pqtfPQTF".contains(String.valueOf(c)) && uniqueOperands.indexOf(c) == -1) {
+                uniqueOperands += c;
+            }
+        }
+
+        StringBuilder truthTable = new StringBuilder("<html><body><style>table {border-collapse: collapse;} th, td {padding: 10px;}</style><table><tr>");
+        // Generate column headers for all unique operands
+        for (int i = 0; i < uniqueOperands.length(); i++) {
+            truthTable.append("<th>").append(uniqueOperands.charAt(i)).append("</th>");
+        }
+        truthTable.append("<th>").append(expr1.toUpperCase()).append("</th><th>").append(expr2.toUpperCase()).append("</th></tr>");
+
+        // Rest of the code remains the same
         for (int i = 0; i < 4; i++) {
             boolean val1 = evaluate(expr1, p[i], q[i]);
             boolean val2 = evaluate(expr2, p[i], q[i]);
 
-            truthTable.append("<tr><td>").append(p[i]).append("</td><td>").append(q[i]).append("</td><td>").append(val1).append("</td><td>").append(val2).append("</td></tr>");
+            truthTable.append("<tr>");
+            // Include values of unique operands
+            for (int j = 0; j < uniqueOperands.length(); j++) {
+                char operand = uniqueOperands.charAt(j);
+                truthTable.append("<td>").append(operand == 'p' ? p[i] : operand == 'q' ? q[i] : operand == 't' ? true : false).append("</td>");
+            }
+            truthTable.append("<td>").append(val1).append("</td><td>").append(val2).append("</td></tr>");
 
             if (val1 != val2) {
                 return "The expressions are not logically equivalent.<br/><br/>" + truthTable.toString() + "</table></body></html>";
